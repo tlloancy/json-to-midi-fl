@@ -1,0 +1,13 @@
+{
+    "drum_mappings": {
+        "22in Kick": 36,
+        "707 Snare": 38,
+        "707 CH": 42,
+        "909 Clap": 39
+    },
+    "instrument_mappings": {
+        "FL Slayer": 26,
+        "3xOsc": 34,
+        "Sytrus": 49
+    }
+}

@@ -1,16 +1,20 @@
 import json
 import os
+import sys
 from midiutil import MIDIFile
-from typing import Dict, List, Optional
+
+# Check Python version for type hint compatibility
+if sys.version_info >= (3, 5):
+    from typing import Tuple, Optional
 
 class Track:
-    def __init__(self, track_data: Dict, track_idx: int):
+    def __init__(self, track_data, track_idx):
         self.name = track_data.get('name', f'Track_{track_idx}')
         self.notes = track_data.get('notes', [])
         self.channel = track_data.get('channel', 0)
         self.track_number = track_data.get('track_number', track_idx)
 
-    def validate(self) -> bool:
+    def validate(self):
         if not self.notes:
             print(f"Warning: Track '{self.name}' has no notes.")
             return False
@@ -21,7 +25,7 @@ class Track:
         return True
 
 class InstrumentMapper:
-    def __init__(self, config_path: str = 'instrument_config.json'):
+    def __init__(self, config_path='instrument_config.json'):
         self.drum_mappings = {
             '22in Kick': 36, '707 Snare': 38, '707 CH': 42, '909 Clap': 39
         }
@@ -32,27 +36,33 @@ class InstrumentMapper:
             try:
                 with open(config_path, 'r') as f:
                     config = json.load(f)
-                    self.drum_mappings.update(config.get('drum_mappings', {}))
-                    self.instrument_mappings.update(config.get('instrument_mappings', {}))
+                self.drum_mappings.update(config.get('drum_mappings', {}))
+                self.instrument_mappings.update(config.get('instrument_mappings', {}))
             except json.JSONDecodeError:
                 print(f"Warning: Invalid JSON in {config_path}. Using default mappings.")
 
-    def get_mapping(self, track_name: str) -> tuple[int, Optional[int]]:
-        if track_name in self.drum_mappings:
-            return self.drum_mappings[track_name], 9  # Drum channel
-        return self.instrument_mappings.get(track_name, 0), None
+    if sys.version_info >= (3, 5):
+        def get_mapping(self, track_name: str) -> Tuple[int, Optional[int]]:
+            if track_name in self.drum_mappings:
+                return self.drum_mappings[track_name], 9  # Drum channel
+            return self.instrument_mappings.get(track_name, 0), None
+    else:
+        def get_mapping(self, track_name):
+            if track_name in self.drum_mappings:
+                return self.drum_mappings[track_name], 9  # Drum channel
+            return self.instrument_mappings.get(track_name, 0), None
 
 class MidiGenerator:
-    def __init__(self, json_path: str, output_path: str, ticks_per_beat: int = 96):
+    def __init__(self, json_path, output_path, ticks_per_beat=96):
         self.json_path = json_path
         self.output_path = output_path
         self.ticks_per_beat = ticks_per_beat
-        self.midi_file: Optional[MIDIFile] = None
-        self.tracks: List[Track] = []
-        self.bpm: float = 126.0
+        self.midi_file = None
+        self.tracks = []
+        self.bpm = 126.0
         self.instrument_mapper = InstrumentMapper()
 
-    def load_json(self) -> None:
+    def load_json(self):
         try:
             with open(self.json_path, 'r') as f:
                 data = json.load(f)
@@ -64,7 +74,7 @@ class MidiGenerator:
         except json.JSONDecodeError:
             raise ValueError(f"Invalid JSON format in '{self.json_path}'.")
 
-    def generate_midi(self) -> None:
+    def generate_midi(self):
         if not self.tracks:
             raise ValueError("No tracks to process.")
         self.midi_file = MIDIFile(len(self.tracks))
@@ -77,7 +87,7 @@ class MidiGenerator:
             note_number, drum_channel = self.instrument_mapper.get_mapping(track.name)
             channel = drum_channel if drum_channel is not None else track.channel
             self.midi_file.addProgramChange(track.track_number, channel, 0, note_number if drum_channel is None else 0)
-            for note in track.notes:
+            for note in track.notes:  # Fixed: Changed self.notes to track.notes
                 self.midi_file.addNote(
                     track.track_number,
                     channel,
@@ -87,7 +97,7 @@ class MidiGenerator:
                     note['velocity']
                 )
 
-    def save_midi(self) -> None:
+    def save_midi(self):
         try:
             with open(self.output_path, 'wb') as output_file:
                 self.midi_file.writeFile(output_file)
@@ -95,7 +105,7 @@ class MidiGenerator:
         except IOError as e:
             raise IOError(f"Failed to write MIDI file '{self.output_path}': {e}")
 
-    def run(self) -> None:
+    def run(self):
         self.load_json()
         self.generate_midi()
         self.save_midi()

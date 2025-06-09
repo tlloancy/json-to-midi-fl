@@ -3,11 +3,31 @@
         "22in Kick": 36,
         "707 Snare": 38,
         "707 CH": 42,
-        "909 Clap": 39
+        "909 Clap": 39,
+        "Crash Cymbal": 49,
+        "Ride Cymbal": 51,
+        "Open Hi-Hat": 46,
+        "Low Tom": 43,
+        "Mid Tom": 45,
+        "High Tom": 48,
+        "Snare Rimshot": 37,
+        "Cowbell": 56,
+        "Tambourine": 54
     },
     "instrument_mappings": {
+        "Ukulele": 25,
         "FL Slayer": 26,
+        "Electric Guitar Lead": 27,
+        "Distorted Guitar": 30,
         "3xOsc": 34,
-        "Sytrus": 49
+        "Finger Bass": 33,
+        "Synth Bass": 38,
+        "Sytrus": 49,
+        "Orchestral Strings": 48,
+        "Piano": 0,
+        "Synth Lead": 81,
+        "Pad Warm": 89,
+        "Vocal Lead": 52,
+        "Organ": 16
     }
 }

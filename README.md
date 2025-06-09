@@ -17,7 +17,7 @@ A Python utility to convert JSON-formatted music data into MIDI files compatible
 
 ## Installation
 
-1. Ensure you have Python 3.6+ installed.
+1. Ensure you have Python 3.9+ installed.
 2. Install the required `midiutil` library:
 
 ```bash
